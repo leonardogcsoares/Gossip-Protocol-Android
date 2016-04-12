@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">GossipProtocol</string>
+    <string name="peerMessage1">Msg:</string>
+    <string name="msg_title">Msg:</string>
+
+    <string name="peer1">Peer 1</string>
+    <string name="peer2">Peer 2</string>
+    <string name="peer3">Peer 3</string>
+    <string name="peer4">Peer 4</string>
+    <string name="peer5">Peer 5</string>
+    <string name="peer6">Peer 6</string>
+    <string name="peer7">Peer 7</string>
+    <string name="peer8">Peer 8</string>
+    <string name="peer9">Peer 9</string>
+    <string name="peer10">Peer 10</string>
+    <string name="peer11">Peer 11</string>
+    <string name="peer12">Peer 12</string>
+</resources>
