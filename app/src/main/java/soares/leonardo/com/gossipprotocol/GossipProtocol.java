@@ -7,9 +7,12 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -20,36 +23,51 @@ public class GossipProtocol implements Controller{
 
     private static final String TAG = "GossipProtocol";
 
-    private static float networkPacketLoss = 0.99f;
     private static boolean isGossiping = false;
+    private static String baseMessage = "";
+
     private final Presenter presenter;
 
     private HashMap peerHash = new HashMap();
     private final Object objectLock = new Object();
 
-    Thread dissiminationThread = new Thread(new DissiminationRunnable());
-    Thread gossipThread = new Thread(new GossipRunnable());
+    Thread dissiminationThread = null;
+    Thread gossipThread = null;
 
     Timer timer = new Timer("Timer");
+
+    // Considering that 1% of packets sent are lost
+    private double networkPacketLossPercent = 100;
+
+    // Considering network latency of 600ms (Max for )
+    private double networkLatency = 600; // In milliseconds
 
 
     public GossipProtocol(Activity activity) {
         this.presenter = (Presenter) activity;
 
+        // This timer repeats every 5 seconds and checks if all peers have received the new message,
+        // simulates the job of the tracker (be it central or distributed). Takes 2 seconds to start.
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 // If all peers have message, gossiping is turned off.
                 isGossiping = !checkAllPeersHaveMessage();
-                if (!isGossiping)
+                if (!isGossiping) {
                     presenter.setPeersClickable();
+                    Log.d(TAG, "Finished Gossiping");
+                    isGossiping = false;
+                    Log.d(TAG, "baseMesage: " + baseMessage);
+
+                    dissiminationThread = null;
+                    gossipThread = null;
+
+                }
             }
-        }, 0, 5000);
+        }, 2000, 5000);
     }
 
     private boolean checkAllPeersHaveMessage() {
-
-        boolean allPeersUpdated = true;
 
         Iterator it = peerHash.entrySet().iterator();
         Peer peer;
@@ -57,22 +75,16 @@ public class GossipProtocol implements Controller{
             Map.Entry pair = (Map.Entry)it.next();
             peer = (Peer) pair.getValue();
             // If any one peer is not updated, continue messaging
-            allPeersUpdated = peer.hasNewMessage();
-            if (!allPeersUpdated)
-                break;
+            if (!peer.hasNewMessage())
+                return false;
         }
 
-        return allPeersUpdated;
+        return true;
     }
 
     @Override
-    public void setNetworkPacketLoss(float networkPacketLoss) {
-        GossipProtocol.networkPacketLoss = networkPacketLoss;
-    }
-
-    @Override
-    public synchronized void addPeerToHash(RelativeLayout relativeLayout, TextView peerMessage) {
-        peerHash.put(relativeLayout.getId(), new Peer(relativeLayout, peerMessage));
+    public synchronized void addPeerToHash(RelativeLayout relativeLayout, TextView peerMessage, String baseMessage) {
+        peerHash.put(relativeLayout.getId(), new Peer(relativeLayout, peerMessage, baseMessage));
     }
 
     @Override
@@ -83,27 +95,76 @@ public class GossipProtocol implements Controller{
     @Override
     public void onClickPeer(View view) {
 
-        Peer peer = (Peer) peerHash.get(view.getId());
-        peer.setHasNewMessage(true);
-        presenter.setPeerColorToPending(peer);
-        isGossiping = true;
+        presenter.setAllPeersToPending(peerHash);
 
+        Peer peer = (Peer) peerHash.get(view.getId());
+
+        baseMessage = peer.baseMessage;
+        peer.setPeerMessage(baseMessage);
+        peer.setHasNewMessage(true);
+        presenter.setPeerColorToReceived(peer);
+
+        isGossiping = true;
         presenter.setPeersUnclickable();
 
-        dissiminationThread.start();
-        gossipThread.start();
+        if (dissiminationThread == null) {
+            dissiminationThread = new Thread(new Thread(new DissiminationRunnable()));
+            dissiminationThread.start();
+        }
+        if (gossipThread == null) {
+            gossipThread = new Thread(new Thread(new GossipRunnable()));
+            gossipThread.start();
+        }
     }
 
     private class DissiminationRunnable implements Runnable {
+
+        HashMap updatedHash = new HashMap();
+        HashMap pendingHash = new HashMap();
 
         @Override
         public void run() {
             Log.d(TAG, "Dissimination thread started");
 
             while (isGossiping) {
+//                Log.d(TAG, "Dissimination thread running");
+                Iterator it = peerHash.entrySet().iterator();
+                Peer peer;
+                while (it.hasNext()) {
+                    Map.Entry pair = (Map.Entry)it.next();
+                    peer = (Peer) pair.getValue();
+                    if (peer.hasNewMessage()) {
+                        try {
+                            // This simulates the latency of the network, in it that it takes X ms
+                            // for the message to reach its destination peer.
+                            Thread.sleep((long) networkLatency);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        dissiminateMessage();
+                    }
+                }
 
             }
         }
+    }
+
+    private void dissiminateMessage() {
+        Iterator it = peerHash.entrySet().iterator();
+        Peer peer;
+        Random random = new Random();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            peer = (Peer) pair.getValue();
+            if (random.nextInt((int) networkPacketLossPercent) == 1) {
+//                Log.d(TAG, "networkPacketLoss == 1");
+                presenter.setPeerMessage(peer, baseMessage);
+                peer.setHasNewMessage(true);
+                presenter.setPeerColorToReceived(peer);
+            }
+
+        }
+
     }
 
     private class GossipRunnable implements Runnable {

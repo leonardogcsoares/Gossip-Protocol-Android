@@ -11,13 +11,15 @@ import android.widget.TextView;
 public class Peer {
 
     private static final String TAG = "Peer";
+    public final String baseMessage;
     private RelativeLayout relativeLayout;
     private TextView peerMessage;
     private boolean hasNewMessage = false;
 
-    public Peer(RelativeLayout relativeLayout, TextView peerMessage) {
+    public Peer(RelativeLayout relativeLayout, TextView peerMessage, String baseMessage) {
         this.relativeLayout = relativeLayout;
         this.peerMessage = peerMessage;
+        this.baseMessage = baseMessage;
     }
 
     public RelativeLayout getRelativeLayout() {

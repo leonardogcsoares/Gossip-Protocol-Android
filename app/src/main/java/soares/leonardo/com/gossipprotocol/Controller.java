@@ -9,9 +9,7 @@ import android.widget.TextView;
  */
 public interface Controller {
 
-    public void setNetworkPacketLoss(float networkPacketLoss);
-
-    public void addPeerToHash(RelativeLayout peerLayout, TextView peerMessage);
+    public void addPeerToHash(RelativeLayout peerLayout, TextView peerMessage, String baseMessage);
 
     public void printPeerHash();
 
