@@ -8,3 +8,4 @@ Dissiminations simulates that the peer has a 1% chance to receive the new messag
 - [ ] Define better `GossipProtocol.onClickPeer` function.
 - [ ] Create `GossipProtocol.peerHasReceivedMessage()`. Substitute for ```java presenter.setPeerMessage(peer, baseMessage); peer.setHasNewMessage(true); presenter.setPeerColorToReceived(peer); ```
 - [ ] comment code for better understanding.
+- [ ] Create SettingsActivity for user to configure `networkLatency` in _ms_, `networkPacketLoss` in _1/%_, with Gossip or not _checkbox_.
