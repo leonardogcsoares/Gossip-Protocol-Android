@@ -11,8 +11,6 @@ public interface Presenter {
 
     void layoutOnClickImpl(View v);
 
-    void setPeerLayoutMessageReceived(int id);
-
     void setPeerColorToPending(Peer peer);
 
     void setPeerColorToReceived(Peer peer);
@@ -24,4 +22,6 @@ public interface Presenter {
     void setPeerMessage(Peer peer, String peerMessage);
 
     void setAllPeersToPending(HashMap peerHash);
+
+    void showElapsedTime(long l);
 }

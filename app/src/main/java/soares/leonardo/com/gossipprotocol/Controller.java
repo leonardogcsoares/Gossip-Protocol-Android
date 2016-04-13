@@ -9,10 +9,12 @@ import android.widget.TextView;
  */
 public interface Controller {
 
-    public void addPeerToHash(RelativeLayout peerLayout, TextView peerMessage, String baseMessage);
+    void addPeerToHash(RelativeLayout peerLayout, TextView peerMessage, String baseMessage);
 
-    public void printPeerHash();
+    void printPeerHash();
 
-    public void onClickPeer(View view);
+    void onClickPeer(View view, boolean shouldGossip);
+
+    boolean isMessageSentThroughNetwork();
 
 }

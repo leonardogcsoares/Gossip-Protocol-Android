@@ -3,9 +3,11 @@ package soares.leonardo.com.gossipprotocol;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -101,12 +103,11 @@ public class MainActivity extends AppCompatActivity implements Presenter {
     }
 
     public void layoutOnClickImpl(View v) {
-        controller.onClickPeer(v);
+        // With Gossip
+//        controller.onClickPeer(v, true);
 
-    }
-
-    public void setPeerLayoutMessageReceived(int id) {
-
+        // Without Gossip
+        controller.onClickPeer(v, false);
     }
 
     @Override
@@ -181,5 +182,16 @@ public class MainActivity extends AppCompatActivity implements Presenter {
             setPeerColorToPending((Peer) pair.getValue());
             ((Peer) pair.getValue()).setHasNewMessage(false);
         }
+    }
+
+    @Override
+    public void showElapsedTime(final long l) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+//                Toast.makeText(getApplicationContext(), "Elapsed Time: " + String.valueOf(l), Toast.LENGTH_LONG).show();
+                Log.d(TAG, "Elapsed Time: " + String.valueOf(l));
+            }
+        });
     }
 }

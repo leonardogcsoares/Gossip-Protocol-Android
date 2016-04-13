@@ -11,7 +11,8 @@
         android:id="@+id/peer10"
         android:background="@color/colorPeerUpdated"
         android:clickable="true"
-        android:onClick="layoutOnClickImpl">
+        android:onClick="layoutOnClickImpl"
+        android:longClickable="true">
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
