@@ -17,6 +17,9 @@ Three threads contain the logic for executing the program:
  - A Timer that executes every 500ms (can be changed), and checks if all peers have received the message. If it has finishes the current broadcasted message and allows another to begin. Responsible for stopping both the Dissimination and Gossip thread.
 The Gossip and Dissimination thread are initialized with the beggining of a new broadcast.
 
+### Results
+From a simple analysis of time for message to be fully broadcasted, we see that compared to a simple Dissimination, implementing Bimodal Multicast drastically reduces time for broadcasting of messages to reach all desired peers, as well as increases reliability for all peers to receive the message.
+
 #To-Do
 - [ ] Better structure of code for the app. More DRY.
 - [ ] Define better `GossipProtocol.onClickPeer` function.
